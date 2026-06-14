@@ -1,0 +1,60 @@
+═══════════════════════════════════════════════════════════════
+   CERTIFICADO DE AUTORÍA — PATITAS PERDIDAS URUGUAY
+═══════════════════════════════════════════════════════════════
+
+OBRA:         Patitas Perdidas — Plataforma de mascotas perdidas y encontradas
+VERSIÓN:      1.0.0
+ARCHIVO:      patitas-perdidas.html
+
+AUTOR ORIGINAL (IDEA Y FUNDADOR):
+  Nombre completo:  Brian Sebastián Polvorini Rodríguez
+  País:             Uruguay
+  Carácter:         Idea original, fundador, propósito social sin fines de lucro
+
+CO-CREADOR TÉCNICO:
+  Nombre:           Claude (modelo claude-sonnet-4-6)
+  Empresa:          Anthropic, PBC
+  Rol:              Diseño, desarrollo y construcción técnica
+
+FECHA Y HORA DE CREACIÓN:
+  2026-06-14 01:41:25 UTC
+
+HUELLA DIGITAL DEL ARCHIVO (SHA-256):
+  8a687bb455ef775db8c94f8ef2b5f0337df37c2ef0563fbd0e838012f9416a01
+
+TAMAÑO DEL ARCHIVO:
+  1052 líneas · 33337 bytes
+
+LICENCIA:
+  Creative Commons Atribución-NoComercial 4.0 Internacional
+  (CC BY-NC 4.0)
+
+  ✅ Se permite: usar, compartir, adaptar con atribución al autor
+  ❌ Prohibido: uso comercial sin autorización expresa de Brian Sebastián Polvorini Rodríguez
+
+DECLARACIÓN DE PRIOR ART:
+  Este documento certifica que la plataforma "Patitas Perdidas Uruguay"
+  — una red colaborativa y gratuita para publicar y encontrar mascotas
+  perdidas o encontradas, con soporte de inteligencia artificial 24hs —
+  fue concebida y desarrollada por primera vez por Brian Sebastián
+  Polvorini Rodríguez, Uruguay, en la fecha registrada arriba.
+
+  Esta publicación establece precedencia legal (prior art) ante cualquier
+  intento posterior de apropiación, copia comercial o registro engañoso
+  de esta idea o implementación.
+
+PROPÓSITO DECLARADO:
+  Plataforma sin fines de lucro. Nació de una necesidad real: el abuelo
+  de Brian perdió a su perrito, y no existía un lugar común en Uruguay
+  donde las personas pudieran publicar mascotas perdidas o encontradas.
+  Esta app es para todos, siempre gratuita.
+
+TESTIGOS DIGITALES:
+  - Brian Sebastián Polvorini Rodríguez (autor)
+  - Claude / Anthropic (co-creador técnico)
+  - Este archivo con su hash SHA-256 verificable
+
+═══════════════════════════════════════════════════════════════
+   "Cada mascota merece volver a casa."
+   — Patitas Perdidas Uruguay, 2025
+═══════════════════════════════════════════════════════════════
