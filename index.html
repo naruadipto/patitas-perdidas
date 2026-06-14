@@ -258,4 +258,186 @@
 </div>
 
 <script type="module">
-import { initiali
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBYJ4OAaKJfEgBcJIb6JV-v9VJS7VJ3ux0",
+  authDomain: "patitas-perdidas-7d9c0.firebaseapp.com",
+  projectId: "patitas-perdidas-7d9c0",
+  storageBucket: "patitas-perdidas-7d9c0.firebasestorage.app",
+  messagingSenderId: "489234360284",
+  appId: "1:489234360284:web:fe7c06008d6d1e7bbd5119"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let allCards = [];
+let activeFilter = 'todos';
+let selectedType = '';
+let chatHistory = [];
+
+// ── ESCUCHAR CAMBIOS EN TIEMPO REAL ──
+const q = query(collection(db, "avisos"), orderBy("createdAt", "desc"));
+onSnapshot(q, (snapshot) => {
+  allCards = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  document.getElementById('stat-total').textContent = allCards.length;
+  renderCards();
+});
+
+window.filterCards = function(filter, el) {
+  activeFilter = filter;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderCards();
+}
+
+function renderCards() {
+  const container = document.getElementById('cards-container');
+  let filtered = allCards;
+  if (activeFilter !== 'todos') {
+    if (['perdido','encontrado'].includes(activeFilter)) filtered = allCards.filter(c => c.tipo === activeFilter);
+    else filtered = allCards.filter(c => c.animal === activeFilter);
+  }
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="big-emoji">🔍</div><p>No hay publicaciones aquí aún.<br>¡Sé el primero en publicar!</p></div>`;
+    return;
+  }
+  container.innerHTML = filtered.map(c => `
+    <div class="card ${c.tipo}" onclick="showDetail('${c.id}')">
+      <div class="card-img">${c.emoji || '🐾'}</div>
+      <div class="card-body">
+        <span class="card-tag tag-${c.tipo}">${c.tipo === 'perdido' ? '😢 Perdido' : '🙌 Encontrado'}</span>
+        <div class="card-name">${c.nombre}</div>
+        <div class="card-info">📍 ${c.zona}</div>
+        <div class="card-time">${timeAgo(c.createdAt)}</div>
+      </div>
+    </div>`).join('');
+}
+
+function timeAgo(ts) {
+  if (!ts) return 'hace un momento';
+  const diff = Date.now() - ts.toMillis();
+  const m = Math.floor(diff/60000);
+  if (m < 1) return 'hace un momento';
+  if (m < 60) return `hace ${m} min`;
+  const h = Math.floor(m/60);
+  if (h < 24) return `hace ${h}h`;
+  return `hace ${Math.floor(h/24)} días`;
+}
+
+window.openModal = function(tipo) {
+  document.getElementById('publish-overlay').classList.add('open');
+  if (tipo) setType(tipo);
+}
+
+window.setType = function(t) {
+  selectedType = t;
+  document.getElementById('btn-perdido').className = 'type-btn' + (t==='perdido'?' selected-perdido':'');
+  document.getElementById('btn-encontrado').className = 'type-btn' + (t==='encontrado'?' selected-encontrado':'');
+}
+
+window.publishCard = async function() {
+  const nombre = document.getElementById('f-nombre').value.trim();
+  const zona = document.getElementById('f-zona').value.trim();
+  const desc = document.getElementById('f-desc').value.trim();
+  const contacto = document.getElementById('f-contacto').value.trim();
+  const animal = document.getElementById('f-tipo').value;
+  const emoji = document.getElementById('f-emoji').value;
+  if (!selectedType || !nombre || !zona || !contacto) {
+    alert('Por favor completá: tipo, nombre, zona y contacto.');
+    return;
+  }
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Publicando...';
+  try {
+    await addDoc(collection(db, "avisos"), {
+      tipo: selectedType, animal, nombre, emoji,
+      zona, contacto, desc: desc || 'Sin descripción.',
+      createdAt: serverTimestamp()
+    });
+    document.getElementById('publish-overlay').classList.remove('open');
+    ['f-nombre','f-zona','f-desc','f-contacto'].forEach(id => document.getElementById(id).value='');
+    selectedType='';
+    document.getElementById('btn-perdido').className='type-btn';
+    document.getElementById('btn-encontrado').className='type-btn';
+    alert(`✅ Aviso publicado para ${nombre}. ¡Mucha suerte! 🐾`);
+  } catch(e) {
+    alert('Error al publicar. Intentá de nuevo.');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Publicar aviso gratis';
+}
+
+window.showDetail = function(id) {
+  const c = allCards.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('d-img').textContent = c.emoji || '🐾';
+  document.getElementById('d-tag').textContent = c.tipo==='perdido'?'😢 Perdido':'🙌 Encontrado';
+  document.getElementById('d-tag').className = `card-tag tag-${c.tipo}`;
+  document.getElementById('d-name').textContent = c.nombre;
+  document.getElementById('d-meta').textContent = `📍 ${c.zona} · ${timeAgo(c.createdAt)}`;
+  document.getElementById('d-desc').textContent = c.desc;
+  document.getElementById('d-contact-btn').onclick = () => alert(`Contacto: ${c.contacto}`);
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+let chatOpen = false;
+window.toggleChat = function() {
+  chatOpen = !chatOpen;
+  document.getElementById('chat-window').classList.toggle('open', chatOpen);
+  if (chatOpen) document.getElementById('chat-input').focus();
+}
+
+window.sendChat = async function() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  appendMsg(text, 'user');
+  chatHistory.push({ role:'user', content:text });
+  const typing = appendTyping();
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:1000,
+        system:`Sos el asistente de "Patitas Perdidas", plataforma de mascotas perdidas y encontradas de Uruguay. Ayudás a: redactar avisos, dar consejos de búsqueda, brindar apoyo emocional, explicar cómo funciona la plataforma. Hablás en español rioplatense, sos cálido y práctico. Siempre terminás con una acción concreta.`,
+        messages: chatHistory
+      })
+    });
+    typing.remove();
+    const data = await response.json();
+    const reply = data.content.map(b=>b.text||'').join('');
+    chatHistory.push({role:'assistant',content:reply});
+    appendMsg(reply,'bot');
+  } catch(e) {
+    typing.remove();
+    appendMsg('Tuve un problema. Intentá de nuevo 🙏','bot');
+  }
+}
+
+function appendMsg(text, role) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `msg msg-${role}`;
+  div.innerHTML = text.replace(/\n/g,'<br>');
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+function appendTyping() {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-typing';
+  div.textContent = '···';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+</script>
+</body>
+</html>
