@@ -1,2 +1,721 @@
-# patitas-perdidas
-Plataforma gratuita de mascotas perdidas y encontradas — Uruguay. Sin fines de lucro. Autor: Brian Sebastián Polvorini Rodríguez
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patitas Perdidas — Uruguay</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Lora:wght@600;700&display=swap');
+
+  :root {
+    --naranja: #F97316;
+    --naranja-soft: #FFF0E6;
+    --azul: #1E40AF;
+    --azul-soft: #EFF6FF;
+    --verde: #16A34A;
+    --rojo: #DC2626;
+    --gris: #6B7280;
+    --gris-claro: #F9FAFB;
+    --blanco: #FFFFFF;
+    --texto: #111827;
+    --borde: #E5E7EB;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #FAFAFA;
+    color: var(--texto);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--blanco);
+    border-bottom: 2px solid var(--borde);
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Lora', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--naranja);
+  }
+  .paw-logo { font-size: 1.6rem; animation: pulse 2s infinite; }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+  .badge-live {
+    background: var(--verde);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .dot-live {
+    width: 6px; height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    animation: blink 1s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #FFF7ED 0%, #EFF6FF 100%);
+    padding: 36px 20px 28px;
+    text-align: center;
+  }
+  .hero h1 {
+    font-family: 'Lora', serif;
+    font-size: clamp(1.5rem, 5vw, 2.4rem);
+    font-weight: 700;
+    color: var(--texto);
+    line-height: 1.25;
+    margin-bottom: 10px;
+  }
+  .hero h1 span { color: var(--naranja); }
+  .hero p {
+    color: var(--gris);
+    font-size: 0.95rem;
+    max-width: 420px;
+    margin: 0 auto 24px;
+    line-height: 1.6;
+  }
+
+  /* ── BOTONES PRINCIPALES ── */
+  .main-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .btn-primary {
+    background: var(--naranja);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 24px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 14px rgba(249,115,22,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(249,115,22,0.45); }
+  .btn-secondary {
+    background: var(--azul);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 24px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 14px rgba(30,64,175,0.3);
+  }
+  .btn-secondary:hover { transform: translateY(-2px); }
+
+  /* ── STATS ── */
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 16px 20px;
+    background: var(--blanco);
+    border-bottom: 1px solid var(--borde);
+    flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-size: 1.4rem; font-weight: 900; color: var(--naranja); }
+  .stat-label { font-size: 0.72rem; color: var(--gris); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ── FILTROS ── */
+  .filters {
+    padding: 16px 20px 8px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    border: 1.5px solid var(--borde);
+    background: var(--blanco);
+    border-radius: 20px;
+    padding: 7px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    color: var(--gris);
+    transition: all 0.15s;
+    font-family: 'Nunito', sans-serif;
+  }
+  .filter-chip.active, .filter-chip:hover {
+    background: var(--naranja);
+    border-color: var(--naranja);
+    color: #fff;
+  }
+  .filter-chip.found.active, .filter-chip.found:hover {
+    background: var(--azul);
+    border-color: var(--azul);
+  }
+
+  /* ── GRID DE MASCOTAS ── */
+  .section-title {
+    padding: 16px 20px 8px;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gris);
+    font-weight: 700;
+  }
+  .cards {
+    padding: 0 16px 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    background: var(--blanco);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    transition: transform 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+  .card.perdido { border-color: rgba(249,115,22,0.3); }
+  .card.encontrado { border-color: rgba(30,64,175,0.3); }
+  .card-img {
+    width: 100%; height: 130px;
+    object-fit: cover;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+  }
+  .card-body { padding: 10px 12px 12px; }
+  .card-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+  }
+  .tag-perdido { background: var(--naranja-soft); color: var(--naranja); }
+  .tag-encontrado { background: var(--azul-soft); color: var(--azul); }
+  .card-name { font-size: 1rem; font-weight: 800; margin-bottom: 2px; }
+  .card-info { font-size: 0.78rem; color: var(--gris); }
+  .card-time { font-size: 0.72rem; color: var(--gris); margin-top: 6px; }
+
+  /* ── MODAL PUBLICAR ── */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: var(--blanco);
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 560px;
+    padding: 24px 24px 40px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-handle {
+    width: 40px; height: 4px;
+    background: var(--borde);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+  .modal h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 18px; }
+  .modal label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 5px; color: var(--texto); }
+  .modal input, .modal select, .modal textarea {
+    width: 100%;
+    border: 1.5px solid var(--borde);
+    border-radius: 12px;
+    padding: 11px 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    margin-bottom: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+    background: var(--blanco);
+    color: var(--texto);
+  }
+  .modal input:focus, .modal select:focus, .modal textarea:focus { border-color: var(--naranja); }
+  .modal textarea { resize: vertical; min-height: 80px; }
+  .type-selector { display: flex; gap: 10px; margin-bottom: 14px; }
+  .type-btn {
+    flex: 1;
+    border: 2px solid var(--borde);
+    background: var(--blanco);
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .type-btn.selected-perdido { border-color: var(--naranja); background: var(--naranja-soft); color: var(--naranja); }
+  .type-btn.selected-encontrado { border-color: var(--azul); background: var(--azul-soft); color: var(--azul); }
+  .submit-btn {
+    width: 100%;
+    background: var(--naranja);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 15px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: opacity 0.15s;
+  }
+  .submit-btn:hover { opacity: 0.9; }
+
+  /* ── CHAT IA ── */
+  .chat-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 20px;
+    background: var(--azul);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 60px; height: 60px;
+    font-size: 1.6rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(30,64,175,0.45);
+    z-index: 150;
+    transition: transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .chat-fab:hover { transform: scale(1.08); }
+  .chat-window {
+    display: none;
+    position: fixed;
+    bottom: 96px;
+    right: 16px;
+    width: calc(100vw - 32px);
+    max-width: 380px;
+    height: 480px;
+    background: var(--blanco);
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    z-index: 150;
+    flex-direction: column;
+    overflow: hidden;
+    animation: fadeInUp 0.2s ease;
+  }
+  @keyframes fadeInUp {
+    from { opacity:0; transform: translateY(16px); }
+    to { opacity:1; transform: translateY(0); }
+  }
+  .chat-window.open { display: flex; }
+  .chat-header {
+    background: var(--azul);
+    color: #fff;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .chat-avatar { font-size: 1.4rem; }
+  .chat-header-info { flex: 1; }
+  .chat-header-info strong { display: block; font-size: 0.95rem; }
+  .chat-header-info span { font-size: 0.75rem; opacity: 0.85; }
+  .chat-close {
+    background: none; border: none; color: #fff;
+    font-size: 1.3rem; cursor: pointer; padding: 4px;
+  }
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .msg { max-width: 80%; }
+  .msg-bot {
+    background: var(--gris-claro);
+    border-radius: 4px 16px 16px 16px;
+    padding: 10px 13px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    align-self: flex-start;
+  }
+  .msg-user {
+    background: var(--azul);
+    color: #fff;
+    border-radius: 16px 16px 4px 16px;
+    padding: 10px 13px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    align-self: flex-end;
+  }
+  .msg-typing {
+    background: var(--gris-claro);
+    border-radius: 4px 16px 16px 16px;
+    padding: 12px 16px;
+    align-self: flex-start;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    color: var(--gris);
+  }
+  .chat-input-area {
+    border-top: 1px solid var(--borde);
+    padding: 10px 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .chat-input {
+    flex: 1;
+    border: 1.5px solid var(--borde);
+    border-radius: 20px;
+    padding: 9px 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+  }
+  .chat-input:focus { border-color: var(--azul); }
+  .chat-send {
+    background: var(--azul);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 38px; height: 38px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s;
+  }
+  .chat-send:hover { opacity: 0.85; }
+
+  /* ── DETAIL MODAL ── */
+  .detail-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .detail-overlay.open { display: flex; }
+  .detail-modal {
+    background: var(--blanco);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: fadeInUp 0.2s ease;
+  }
+  .detail-img {
+    width: 100%; height: 220px;
+    object-fit: cover;
+    background: #f3f4f6;
+    border-radius: 24px 24px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 6rem;
+  }
+  .detail-body { padding: 20px; }
+  .detail-body h2 { font-size: 1.5rem; font-weight: 900; margin-bottom: 4px; }
+  .detail-meta { color: var(--gris); font-size: 0.85rem; margin-bottom: 16px; }
+  .detail-desc { font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px; color: #374151; }
+  .detail-contact {
+    background: var(--naranja);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 14px;
+    width: 100%;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  .detail-close-btn {
+    background: var(--gris-claro);
+    color: var(--texto);
+    border: none;
+    border-radius: 14px;
+    padding: 12px;
+    width: 100%;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--gris);
+  }
+  .empty-state .big-emoji { font-size: 3rem; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.9rem; line-height: 1.5; }
+
+  /* ── ABOUT MODAL ── */
+  .about-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 400;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .about-overlay.open { display: flex; }
+  .about-modal {
+    background: var(--blanco);
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 560px;
+    padding: 24px 24px 44px;
+    max-height: 88vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  .about-modal h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 14px; color: var(--naranja); }
+  .about-modal h3 { font-size: 0.9rem; font-weight: 800; margin: 16px 0 6px; color: var(--texto); text-transform: uppercase; letter-spacing: 0.05em; }
+  .about-modal p { font-size: 0.88rem; line-height: 1.65; color: #374151; margin-bottom: 8px; }
+  .creator-card {
+    background: var(--gris-claro);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .creator-avatar { font-size: 2.2rem; }
+  .creator-name { font-weight: 800; font-size: 0.95rem; }
+  .creator-role { font-size: 0.78rem; color: var(--gris); }
+  .license-box {
+    background: #F0FDF4;
+    border: 1.5px solid #86EFAC;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-top: 14px;
+  }
+  .license-box strong { display: block; font-size: 0.88rem; color: var(--verde); margin-bottom: 4px; }
+  .license-box p { font-size: 0.8rem; color: #166534; margin: 0; line-height: 1.5; }
+  .license-badge {
+    display: inline-block;
+    background: var(--verde);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .prior-art-box {
+    background: #EFF6FF;
+    border: 1.5px solid #93C5FD;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-top: 10px;
+  }
+  .prior-art-box strong { display: block; font-size: 0.88rem; color: var(--azul); margin-bottom: 4px; }
+  .prior-art-box p { font-size: 0.8rem; color: #1E3A5F; margin: 0; line-height: 1.5; }
+  .about-close-btn {
+    background: var(--naranja);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 14px;
+    width: 100%;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--texto);
+    color: #9CA3AF;
+    text-align: center;
+    padding: 24px 20px 100px;
+    font-size: 0.78rem;
+    line-height: 1.8;
+  }
+  .footer strong { color: #fff; }
+  .footer .footer-logo { font-size: 1.5rem; margin-bottom: 8px; }
+  .footer a {
+    color: var(--naranja);
+    text-decoration: none;
+    font-weight: 700;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <span class="paw-logo">🐾</span>
+    Patitas Perdidas
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <div class="badge-live">
+      <div class="dot-live"></div>
+      SOPORTE 24HS
+    </div>
+    <button onclick="document.getElementById('about-overlay').classList.add('open')"
+      style="background:none;border:none;cursor:pointer;font-size:1.3rem;line-height:1;" title="Acerca de">ℹ️</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Cada mascota merece<br><span>volver a casa</span></h1>
+  <p>La red de mascotas perdidas y encontradas de Uruguay. Gratuita, colaborativa, siempre activa.</p>
+  <div class="main-actions">
+    <button class="btn-primary" onclick="openModal('perdido')">
+      😢 Perdí una mascota
+    </button>
+    <button class="btn-secondary" onclick="openModal('encontrado')">
+      🙌 Encontré una mascota
+    </button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-num" id="stat-total">247</div>
+    <div class="stat-label">Publicaciones</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num" id="stat-reunidos">89</div>
+    <div class="stat-label">Reunidos 🎉</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">Uruguay</div>
+    <div class="stat-label">Cobertura</div>
+  </div>
+</div>
+
+<!-- FILTROS -->
+<div class="filters">
+  <button class="filter-chip active" onclick="filterCards('todos', this)">Todos</button>
+  <button class="filter-chip" onclick="filterCards('perdido', this)">😢 Perdidos</button>
+  <button class="filter-chip found" onclick="filterCards('encontrado', this)">🙌 Encontrados</button>
+  <button class="filter-chip" onclick="filterCards('perro', this)">🐶 Perros</button>
+  <button class="filter-chip" onclick="filterCards('gato', this)">🐱 Gatos</button>
+  <button class="filter-chip" onclick="filterCards('otro', this)">🐦 Otros</button>
+</div>
+
+<!-- SECCIÓN CARDS -->
+<div class="section-title">Publicaciones recientes</div>
+<div class="cards" id="cards-container"></div>
+
+<!-- MODAL PUBLICAR -->
+<div class="overlay" id="publish-overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 id="modal-title">📢 Publicar mascota</h2>
+
+    <label>¿Qué pasó?</label>
+    <div class="type-selector">
+      <button class="type-btn" id="btn-perdido" onclick="setType('perdido')">😢 La perdí</button>
+      <button class="type-btn" id="btn-encontrado" onclick="setType('encontrado')">🙌 La encontré</button>
+    </div>
+
+    <label>Nombre de la mascota</label>
+    <input type="text" id="f-nombre" placeholder="Ej: Luna, Firulais...">
+
+    <label>Tipo de animal</label>
+    <select id="f-tipo">
+      <option value="perro">🐶 Perro</option>
+      <option value="gato">🐱 Gato</option>
+      <option value="otro">🐦 Otro</option>
+    </select>
+
+    <label>Descripción (color, tamaño, señas particulares)</label>
+    <textarea id="f-desc" placeholder="Ej: Mestizo mediano, color marrón con mancha blanca en el pecho..."></textarea>
+
+    <label>Zona / Barrio</label>
+    <input type="text" id="f-zona" placeholder="Ej: Pocitos, Montevideo">
+
+    <label>Tu teléfono o contacto</label>
+    <input type="text" id="f-contacto" placeholder="WhatsApp, teléfono...">
+
+    <label>Emoji que represente a tu mascota 🐾</label>
+    <select id="f-emoji">
+      <option>🐶</option><option>🐕</option><option>🦮</option><option>🐩</option>
+      <option>🐱</option><option>🐈</option><option>🐦</option><option>🐰</option>
+      <option>🐹</option><option>🦜</option><option>🐢</option>
+    </select>
+
+    <button class="submit-btn" onclick="publishCard()">Publicar aviso gratis</button>
+  </div>
+</div>
+
+<!-- MODAL DETALLE -->
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetailOutside(event)"
